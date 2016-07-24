@@ -157,7 +157,7 @@ public class Server implements Runnable {
         acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
         TimerManager tMan = TimerManager.getInstance();
         tMan.start();
-        tMan.register(tMan.purge(), 300000);//Purging ftw...
+        tMan.register(tMan.purge(), 300000);
         tMan.register(new RankingWorker(), ServerConstants.RANKING_INTERVAL);
         
         long timeToTake = System.currentTimeMillis();
@@ -200,7 +200,7 @@ public class Server implements Runnable {
             }
         } catch (Exception e) {
             System.out.println("Error in world.ini");
-            e.printStackTrace();//For those who get errors
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -212,9 +212,9 @@ public class Server implements Runnable {
         }
         
         System.out.println("Listening on port 8484\r\n\r\n");
-
-        System.out.println("Solaxia is now online.");
+ 
         online = true;
+        System.out.println("Server Online");
     }
 
     public void shutdown() {
@@ -224,8 +224,8 @@ public class Server implements Runnable {
     	} catch (NullPointerException e) {
     		FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, e);
     	}
-        System.out.println("Server offline.");
-        System.exit(0);// BOEIEND :D
+        System.out.println("Server Offline.");
+        System.exit(0);
     }
 
     public static void main(String args[]) {

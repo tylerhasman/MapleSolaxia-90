@@ -17,7 +17,7 @@ public class ServerConstants {
     // IP Configuration
     public static String HOST = "127.0.0.1";
     //Database Configuration
-    public static String DB_URL = "jdbc:mysql://localhost:3306/thor";
+    public static String DB_URL = "jdbc:mysql://localhost:3306/odin";
     public static String DB_USER = "root";
     public static String DB_PASS = "";
     //Other Configuration

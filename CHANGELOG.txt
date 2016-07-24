@@ -21,6 +21,7 @@ Fixed Portals
 Fixed Picking Up Not Making Item Disappear
 Fixed NPC Packets
 Tweak Server Configuration
+Fixed Issue Respawning, RespawnWorker now handles in MapleMap not ChannelServer.
 
 
 

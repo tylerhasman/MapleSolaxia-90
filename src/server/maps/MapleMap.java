@@ -95,7 +95,7 @@ public class MapleMap {
 	private AtomicInteger runningOid = new AtomicInteger(100);
 	private int returnMapId;
 	private int channel, world;
-	private byte monsterRate;
+	private float monsterRate;
 	private boolean clock;
 	private boolean boat;
 	private boolean docked;
@@ -140,9 +140,21 @@ public class MapleMap {
 		this.world = world;
 		this.returnMapId = returnMapId;
 		this.monsterRate = (byte) Math.ceil(monsterRate);
-		if (this.monsterRate == 0) {
-			this.monsterRate = 1;
+		
+		if (monsterRate > 0) {
+			this.monsterRate = monsterRate;
+			boolean greater1 = monsterRate > 1.0;
+			this.monsterRate = (float) Math.abs(1.0 - this.monsterRate);
+			this.monsterRate = this.monsterRate / 2.0f;
+			if (greater1) {
+				this.monsterRate = 1.0f + this.monsterRate;
+			} else {
+				this.monsterRate = 1.0f - this.monsterRate;
+			}
+			TimerManager.getInstance().register(new RespawnWorker(), 5001 + (int) (30.0 * Math.random()));
 		}
+		
+		
 		final ReentrantReadWriteLock chrLock = new ReentrantReadWriteLock(true);
 		chrRLock = chrLock.readLock();
 		chrWLock = chrLock.writeLock();
@@ -622,7 +634,6 @@ public class MapleMap {
 		spawnedMonstersOnMap.decrementAndGet();
 		monster.setHp(0);
 		broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
-		//if (monster.getStats().selfDestruction() == null) {//FUU BOMBS D:
 		removeMapObject(monster);
 		//}
 		if (monster.getCP() > 0 && chr.getCarnival() != null) {
@@ -989,19 +1000,8 @@ public class MapleMap {
 	}
 
 	public void spawnMonster(final MapleMonster monster) {
-		if (mobCapacity != -1 && mobCapacity == spawnedMonstersOnMap.get()) {
-			return;//PyPQ
-		}
 		monster.setMap(this);
 		synchronized (this.mapobjects) {
-
-			if (!monster.getMap().getAllPlayer().isEmpty()) {
-				MapleCharacter chr = (MapleCharacter) getAllPlayer().get(0);
-				if (monster.getEventInstance() == null && chr.getEventInstance() != null) {
-					chr.getEventInstance().registerMonster(monster);
-				}
-			}
-
 			spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 				@Override
 				public void sendPackets(MapleClient c) {
@@ -1747,8 +1747,6 @@ public class MapleMap {
 	}
 
 	/**
-	 * it's threadsafe, gtfo :D
-	 *
 	 * @param monster
 	 * @param mobTime
 	 */
@@ -1758,9 +1756,43 @@ public class MapleMap {
 		SpawnPoint sp = new SpawnPoint(monster, newpos, !monster.isMobile(), mobTime, mobInterval, team);
 		monsterSpawn.add(sp);
 		if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
-			spawnMonster(sp.getMonster());
+			sp.spawnMonster(this);
 		}
+	}
+	
+	private class RespawnWorker implements Runnable {
 
+		@Override
+		public void run() {
+			int playersOnMap = characters.size();
+
+			if (playersOnMap == 0) {
+				return;
+			}
+
+			int ispawnedMonstersOnMap = spawnedMonstersOnMap.get();
+			int numShouldSpawn = (int) Math.round(Math.random() * ((2 + playersOnMap / 1.5 + (getMaxRegularSpawn() - ispawnedMonstersOnMap) / 4.0)));
+			if (numShouldSpawn + ispawnedMonstersOnMap > getMaxRegularSpawn()) {
+				numShouldSpawn = getMaxRegularSpawn() - ispawnedMonstersOnMap;
+			}
+
+			if (numShouldSpawn <= 0) {
+				return;
+			}
+
+			List<SpawnPoint> randomSpawn = new ArrayList<SpawnPoint>(monsterSpawn);
+			Collections.shuffle(randomSpawn);
+			int spawned = 0;
+			for (SpawnPoint spawnPoint : randomSpawn) {
+				if (spawnPoint.shouldSpawn()) {
+					spawnPoint.spawnMonster(MapleMap.this);
+					spawned++;
+				}
+				if (spawned >= numShouldSpawn) {
+					break;
+				}
+			}
+		}
 	}
 
 	public Collection<MapleCharacter> getCharacters() {
@@ -2007,44 +2039,7 @@ public class MapleMap {
 			}
 		}
 	}
-
-	public void instanceMapRespawn() {
-		final int numShouldSpawn = (short) ((monsterSpawn.size() - spawnedMonstersOnMap.get()));//Fking lol'd
-		if (numShouldSpawn > 0) {
-			List<SpawnPoint> randomSpawn = new ArrayList<>(monsterSpawn);
-			Collections.shuffle(randomSpawn);
-			int spawned = 0;
-			for (SpawnPoint spawnPoint : randomSpawn) {
-				spawnMonster(spawnPoint.getMonster());
-				spawned++;
-				if (spawned >= numShouldSpawn) {
-					break;
-				}
-			}
-		}
-	}
-
-	public void respawn() {
-		if (characters.isEmpty()) {
-			return;
-		}
-		short numShouldSpawn = (short) ((monsterSpawn.size() - spawnedMonstersOnMap.get()));//Fking lol'd
-		if (numShouldSpawn > 0) {
-			List<SpawnPoint> randomSpawn = new ArrayList<>(monsterSpawn);
-			Collections.shuffle(randomSpawn);
-			short spawned = 0;
-			for (SpawnPoint spawnPoint : randomSpawn) {
-				if (spawnPoint.shouldSpawn()) {
-					spawnMonster(spawnPoint.getMonster());
-					spawned++;
-				}
-				if (spawned >= numShouldSpawn) {
-					break;
-				}
-			}
-		}
-	}
-
+	
 	private static interface DelayedPacketCreation {
 
 		void sendPackets(MapleClient c);
@@ -2372,5 +2367,9 @@ public class MapleMap {
 
 	public short getMobInterval() {
 		return mobInterval;
+	}
+	
+	private int getMaxRegularSpawn() {
+		return (int) (monsterSpawn.size() / monsterRate);
 	}
 }

@@ -746,14 +746,6 @@ public class Commands {
 				player.yellowMessage("Map ID " + sub[1] + " is invalid.");
 				return false;
 			}
-		} else if (sub[0].equals("reloadmap")) {
-			MapleMap oldMap = c.getPlayer().getMap();
-			MapleMap newMap = c.getChannelServer().getMapFactory().getMap(player.getMapId());
-			for (MapleCharacter ch : oldMap.getCharacters()) {
-				ch.changeMap(newMap);
-			}
-			oldMap = null;
-			newMap.respawn();
 		} else if (sub[0].equals("music")){
 			if (sub.length < 2) {
 				player.yellowMessage("Syntax: !music <song>");
