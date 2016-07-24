@@ -1,0 +1,44 @@
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !cleardrops 
+Odin used: !cleardrop 
+Odin used: !cleardrops 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !map 0 
+Odin used: !spawn 100100 1 
+Odin used: !spawn 8800000 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !cleardrops 
+Odin used: !cleardrop 
+Odin used: !spawn 100100 1 
+Odin used: !spawn 100100 1 
+Odin used: !spawn 100100 
+Odin used: !job 132 
+Odin used: !item 1432011 
+Odin used: !sp 300 
+Odin used: !job 121 
+Odin used: !job 412 
+Odin used: !job 232 
+Odin used: !job 412 
+Odin used: !item 2070011 300 
+Odin used: !item 1472030 
+Odin used: !killall 
+Odin used: !job 132 
+Odin used: !search 
+Odin used: !spawn 100100 1 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !killall 
+Odin used: !monsterdebug 
+Odin used: !monsterdebug 
+Odin used: !spawndebug 
+Odin used: !debug 
+Odin used: !debug 
+Odin used: !spawndebug 
+Odin used: !monsterdebug 

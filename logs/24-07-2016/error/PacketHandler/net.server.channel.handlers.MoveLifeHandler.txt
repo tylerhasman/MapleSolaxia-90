@@ -1,0 +1,29 @@
+Error for account ; Admin
+All: DC 00 65 00 00 00 12 00 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 CC DD FF 00 CC DD FF 00 66 E7 70 8B 33 04 AB FF 00 00 00 00 03 00 33 04 AB FF 00 00 00 00 3A 00 00 00 00 00 04 D0 02 00 38 04 AB FF 2B 00 00 00 3A 00 00 00 00 00 02 90 00 00 41 04 AB FF 2B 00 00 00 3C 00 00 00 00 00 02 D8 00 00 33 04 AB FF 41 04 AB FF 00 00 00 00 00 00 00 00
+Now: 00 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 CC DD FF 00 CC DD FF 00 66 E7 70 8B 33 04 AB FF 00 00 00 00 03 00 33 04 AB FF 00 00 00 00 3A 00 00 00 00 00 04 D0 02 00 38 04 AB FF 2B 00 00 00 3A 00 00 00 00 00 02 90 00 00 41 04 AB FF 2B 00 00 00 3C 00 00 00 00 00 02 D8 00 00 33 04 AB FF 41 04 AB FF 00 00 00 00 00 00 00 00
+java.lang.NullPointerException
+	at net.server.channel.handlers.MoveLifeHandler.handlePacket(MoveLifeHandler.java:43)
+	at net.MapleServerHandler.messageReceived(MapleServerHandler.java:135)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain$TailFilter.messageReceived(DefaultIoFilterChain.java:734)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:429)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:51)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:812)
+	at org.apache.mina.filter.codec.ProtocolCodecFilter$ProtocolDecoderOutputImpl.flush(ProtocolCodecFilter.java:346)
+	at org.apache.mina.filter.codec.ProtocolCodecFilter.messageReceived(ProtocolCodecFilter.java:221)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:429)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.access$1200(DefaultIoFilterChain.java:51)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain$EntryImpl$1.messageReceived(DefaultIoFilterChain.java:812)
+	at org.apache.mina.core.filterchain.IoFilterAdapter.messageReceived(IoFilterAdapter.java:119)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.callNextMessageReceived(DefaultIoFilterChain.java:429)
+	at org.apache.mina.core.filterchain.DefaultIoFilterChain.fireMessageReceived(DefaultIoFilterChain.java:416)
+	at org.apache.mina.core.polling.AbstractPollingIoProcessor.read(AbstractPollingIoProcessor.java:638)
+	at org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:598)
+	at org.apache.mina.core.polling.AbstractPollingIoProcessor.process(AbstractPollingIoProcessor.java:587)
+	at org.apache.mina.core.polling.AbstractPollingIoProcessor.access$400(AbstractPollingIoProcessor.java:61)
+	at org.apache.mina.core.polling.AbstractPollingIoProcessor$Processor.run(AbstractPollingIoProcessor.java:969)
+	at org.apache.mina.util.NamePreservingRunnable.run(NamePreservingRunnable.java:64)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+
+---------------------------------

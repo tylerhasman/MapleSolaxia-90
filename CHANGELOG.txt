@@ -1,0 +1,29 @@
+Title : MapleSolaxia Fork
+Version : 90.3
+
+Rev 1 - 2
+
+Fixed getHelloPacket
+Updated Version From v83 -> v90.3
+Fixed/Update SendOps/RecvOps
+Removed votePointsSystem
+Updated WarpToMap
+Updated GeneralChatHandler
+Updated lockUI
+Updated updatePlayerStats
+Added Possible Values for serverMessage
+Updated spawnMonster
+Removed AdminChatHandler 
+Updated dropItemFromMap
+Fixed the Range and Close Attack
+Fixed Monster Dont Move
+Fixed Portals
+Fixed Picking Up Not Making Item Disappear
+Fixed NPC Packets
+
+
+
+Bugs 
+Invincible monsters that you can't hit, but can't damage. ? what
+magic attack dont work (handler) ?
+buy cash shop items error 38
