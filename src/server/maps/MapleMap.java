@@ -806,14 +806,12 @@ public class MapleMap {
 	}
 
 	/**
-	 * Automagically finds a new controller for the given monster from the chars
-	 * on the map...
-	 *
+	 * Automagically finds a new controller for the given monster from the chars on the map...
+	 * 
 	 * @param monster
 	 */
 	public void updateMonsterController(MapleMonster monster) {
-		monster.monsterLock.lock();
-		try {
+		synchronized (monster) {
 			if (!monster.isAlive()) {
 				return;
 			}
@@ -826,18 +824,16 @@ public class MapleMap {
 			}
 			int mincontrolled = -1;
 			MapleCharacter newController = null;
-			chrRLock.lock();
-			try {
+			synchronized (characters) {
 				for (MapleCharacter chr : characters) {
 					if (!chr.isHidden() && (chr.getControlledMonsters().size() < mincontrolled || mincontrolled == -1)) {
-						mincontrolled = chr.getControlledMonsters().size();
-						newController = chr;
+							mincontrolled = chr.getControlledMonsters().size();
+							newController = chr;
 					}
 				}
-			} finally {
-				chrRLock.unlock();
 			}
-			if (newController != null) {// was a new controller found? (if not no one is on the map)
+			if (newController != null) {
+
 				if (monster.isFirstAttack()) {
 					newController.controlMonster(monster, true);
 					monster.setControllerHasAggro(true);
@@ -846,8 +842,6 @@ public class MapleMap {
 					newController.controlMonster(monster, false);
 				}
 			}
-		} finally {
-			monster.monsterLock.unlock();
 		}
 	}
 

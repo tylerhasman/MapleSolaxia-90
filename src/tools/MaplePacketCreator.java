@@ -1470,17 +1470,13 @@ public class MaplePacketCreator {
 		mplew.writeShort(0); 
 		mplew.writeShort(life.getFh());
 
-		if (effect > 0) {
-			mplew.write(effect);
-			mplew.write(0);
-			mplew.writeShort(0);
-			if (effect == 15) {
-				mplew.write(0);
-			}
+		if (effect != 0) {
+			mplew.writeInt(effect != 0 ? effect : -3);
 		}
-		mplew.write(newSpawn ? -2 : -1);
-		mplew.write(life.getTeam());
 		
+		mplew.write(newSpawn ? -2 : -1);
+		
+		mplew.write(life.getTeam());
 		mplew.writeInt(0);
 		mplew.writeInt(0);
 		
