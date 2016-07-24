@@ -818,16 +818,9 @@ public class MapleStatEffect {
         int i = 0;
         for (MapleMapObject mo : affected) {
             MapleMonster monster = (MapleMonster) mo;
-            if (isDispel()) { 
-        		monster.debuffMob(skill_.getId());
-        	} else {
-        		if (makeChanceResult()) {
-        			monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, null, false), isPoison(), getDuration());
-        			if (isCrash()) {
-        				monster.debuffMob(skill_.getId());
-        			}
-        		}
-        	}
+            if (makeChanceResult()) {
+                monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, null, false), isPoison(), getDuration());
+            }
             i++;
             if (i >= mobCount) {
                 break;

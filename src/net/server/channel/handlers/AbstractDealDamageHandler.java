@@ -291,7 +291,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
                         player.addHP(Math.min(monster.getMaxHp(), Math.min((int) ((double) totDamage * (double) SkillFactory.getSkill(attack.skill).getEffect(player.getSkillLevel(SkillFactory.getSkill(attack.skill))).getX() / 100.0), player.getMaxHp() / 2)));
                     } else if (attack.skill == Bandit.STEAL) {                    	
                         Skill steal = SkillFactory.getSkill(Bandit.STEAL);
-                        if (monster.getStolen().size() < 1) { // One steal per mob <3
 	                        if (Math.random() < 0.3 && steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) { //Else it drops too many cool stuff :(
 	                            List<MonsterDropEntry> toSteals = MapleMonsterInformationProvider.getInstance().retrieveDrop(monster.getId());
 	                            Collections.shuffle(toSteals);
@@ -305,7 +304,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
 	                            }
 	                            player.getMap().spawnItemDrop(monster, player, item, monster.getPosition(), false, false);
 	                            monster.addStolen(toSteal);
-	                        }
                         }                        
                     } else if (attack.skill == FPArchMage.FIRE_DEMON) {
                         monster.setTempEffectiveness(Element.ICE, ElementalEffectiveness.WEAK, SkillFactory.getSkill(FPArchMage.FIRE_DEMON).getEffect(player.getSkillLevel(SkillFactory.getSkill(FPArchMage.FIRE_DEMON))).getDuration() * 1000);

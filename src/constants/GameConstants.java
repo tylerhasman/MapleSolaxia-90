@@ -42,6 +42,10 @@ public class GameConstants {
         return job == 2000 || (job >= 2100 && job <= 2112);
     }
     
+    public static boolean isEvan (int job) {
+        return job / 100 == 22 || job == 2001;
+    }  
+    
     public static boolean isInJobTree(int skillId, int jobId) {
     	int skill = skillId / 10000;
     	if ((jobId - skill) + skill == jobId) {

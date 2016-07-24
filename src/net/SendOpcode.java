@@ -212,6 +212,7 @@ public enum SendOpcode {
     SUMMON_ATTACK(206),
     DAMAGE_SUMMON(207),
     SUMMON_SKILL(208),
+    
     SPAWN_DRAGON(209),
     MOVE_DRAGON(210),
     REMOVE_DRAGON(211),

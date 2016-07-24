@@ -508,78 +508,87 @@ public class MapleMap {
 		return count;
 	}
 
-	public boolean damageMonster(final MapleCharacter chr, final MapleMonster monster, final int damage) {
+	public boolean damageMonster(MapleCharacter chr, MapleMonster monster, int damage) {
 		if (monster.getId() == 8800000) {
-			for (MapleMapObject object : chr.getMap().getMapObjects()) {
+			Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
+			for (MapleMapObject object : objects) {
 				MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
 				if (mons != null) {
-					if (mons.getId() >= 8800003 && mons.getId() <= 8800010) {
+					if (mons.getId() == 8800003 || mons.getId() == 8800004 || mons.getId() == 8800005 || mons.getId() == 8800006 || mons.getId() == 8800007 || mons.getId() == 8800008 || mons.getId() == 8800009 || mons.getId() == 8800010) {
 						return true;
 					}
 				}
 			}
 		}
+
+		// double checking to potentially avoid synchronisation overhead
 		if (monster.isAlive()) {
-			boolean killed = false;
-			monster.monsterLock.lock();
-			try {
+			boolean killMonster = false;
+
+			synchronized (monster) {
 				if (!monster.isAlive()) {
 					return false;
 				}
-				Pair<Integer, Integer> cool = monster.getStats().getCool();
-				if (cool != null) {
-					Pyramid pq = (Pyramid) chr.getPartyQuest();
-					if (pq != null) {
-						if (damage > 0) {
-							if (damage >= cool.getLeft()) {
-								if ((Math.random() * 100) < cool.getRight()) {
-									pq.cool();
-								} else {
-									pq.kill();
-								}
-							} else {
-								pq.kill();
-							}
-						} else {
-							pq.miss();
-						}
-						killed = true;
-					}
-				}
 				if (damage > 0) {
-					monster.damage(chr, damage);
-					if (!monster.isAlive()) {  // monster just died
-						//killMonster(monster, chr, true);
-						killed = true;
-					}
-				} else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {
-					for (MapleMapObject object : chr.getMap().getMapObjects()) {
-						MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
-						if (mons != null) {
-							if (monster.isAlive() && (monster.getId() >= 8810010 && monster.getId() <= 8810017)) {
-								if (mons.getId() == 8810018) {
-									killMonster(mons, chr, true);
+					int monsterhp = monster.getHp();
+					monster.damage(chr, damage, true);
+					if (!monster.isAlive()) { // monster just died
+
+						killMonster(monster, chr, true);
+						switch (monster.getId()) {
+							case 8810002:
+							case 8810003:
+							case 8810004:
+							case 8810005:
+							case 8810006:
+							case 8810007:
+							case 8810008:
+							case 8810009:
+								Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
+								for (MapleMapObject object : objects) {
+									MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
+									if (mons != null) {
+										if (mons.getId() == 8810018) {
+											damageMonster(chr, mons, monsterhp);
+										}
+									}
 								}
-							}
+								break;
+						}
+					} else {
+						switch (monster.getId()) {
+							case 8810002:
+							case 8810003:
+							case 8810004:
+							case 8810005:
+							case 8810006:
+							case 8810007:
+							case 8810008:
+							case 8810009:
+								Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
+								for (MapleMapObject object : objects) {
+									MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
+									if (mons != null) {
+										if (mons.getId() == 8810018) {
+											damageMonster(chr, mons, damage);
+										}
+									}
+								}
+								break;
 						}
 					}
 				}
-			} finally {
-				monster.monsterLock.unlock();
 			}
-			if (monster.getStats().selfDestruction() != null && monster.getStats().selfDestruction().getHp() > -1) {// should work ;p
-				if (monster.getHp() <= monster.getStats().selfDestruction().getHp()) {
-					killMonster(monster, chr, true, false, monster.getStats().selfDestruction().getAction());
-					return true;
-				}
-			}
-			if (killed) {
+			// the monster is dead, as damageMonster returns immediately for dead monsters this makes
+			// this block implicitly synchronized for ONE monster
+			if (killMonster) {
 				killMonster(monster, chr, true);
 			}
 			return true;
 		}
 		return false;
 	}
+
 
 	public List<MapleMonster> getMonsters() {
 		List<MapleMonster> mobs = new ArrayList<MapleMonster>();
@@ -601,14 +610,7 @@ public class MapleMap {
 					killMonster(monster, chr, withDrops, true, 1);
 					killAllMonsters();
 				}
-			}, 3000);
-			return;
-		}
-		if (chr == null) {
-			spawnedMonstersOnMap.decrementAndGet();
-			monster.setHp(0);
-			broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
-			removeMapObject(monster);
+			}, monster.getAnimationTime("die1"));
 			return;
 		}
 		int buff = monster.getBuffToGive();
@@ -635,12 +637,11 @@ public class MapleMap {
 		monster.setHp(0);
 		broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
 		removeMapObject(monster);
-		//}
+		
 		if (monster.getCP() > 0 && chr.getCarnival() != null) {
 			chr.getCarnivalParty().addCP(chr, monster.getCP());
 			chr.announce(MaplePacketCreator.updateCP(chr.getCP(), chr.getObtainedCP()));
 			broadcastMessage(MaplePacketCreator.updatePartyCP(chr.getCarnivalParty()));
-			//they drop items too ):
 		}
 		if (monster.getId() >= 8800003 && monster.getId() <= 8800010) {
 			boolean makeZakReal = true;
@@ -689,39 +690,7 @@ public class MapleMap {
 			}
 		}
 	}
-
-	public void monsterCloakingDevice() {
-		for (MapleMapObject monstermo : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER))) {
-			MapleMonster monster = (MapleMonster) monstermo;
-			broadcastMessage(MaplePacketCreator.makeMonsterInvisible(monster));
-		}
-	}
-
-	public void softKillAllMonsters() {
-		for (MapleMapObject monstermo : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER))) {
-			MapleMonster monster = (MapleMonster) monstermo;
-			if (monster.getStats().isFriendly()) {
-				continue;
-			}
-			spawnedMonstersOnMap.decrementAndGet();
-			monster.setHp(0);
-			removeMapObject(monster);
-		}
-	}
-
-	public void killAllMonstersNotFriendly() {
-		for (MapleMapObject monstermo : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER))) {
-			MapleMonster monster = (MapleMonster) monstermo;
-			if (monster.getStats().isFriendly()) {
-				continue;
-			}
-			spawnedMonstersOnMap.decrementAndGet();
-			monster.setHp(0);
-			broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), true), monster.getPosition());
-			removeMapObject(monster);
-		}
-	}
-
+	
 	public void killAllMonsters() {
 		for (MapleMapObject monstermo : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER))) {
 			MapleMonster monster = (MapleMonster) monstermo;

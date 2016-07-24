@@ -1372,7 +1372,7 @@ public class MaplePacketCreator {
 	 * @return The spawn monster packet.
 	 */
 	public static byte[] spawnMonster(MapleMonster life, boolean newSpawn) {
-		return spawnMonsterInternal(life, false, newSpawn, false, 0, false);
+		return spawnMonsterInternal(life, false, newSpawn, false, 0);
 	}
 
 	/**
@@ -1383,7 +1383,7 @@ public class MaplePacketCreator {
 	 * @return The spawn monster packet.
 	 */
 	public static byte[] spawnHPQMonster(MapleMonster life, boolean newSpawn) {
-		return spawnMonsterInternal(life, false, newSpawn, false, 0, false);
+		return spawnMonsterInternal(life, false, newSpawn, false, 0);
 	}
 
 	/**
@@ -1395,7 +1395,7 @@ public class MaplePacketCreator {
 	 * @return The spawn monster packet.
 	 */
 	public static byte[] spawnMonster(MapleMonster life, boolean newSpawn, int effect) {
-		return spawnMonsterInternal(life, false, newSpawn, false, effect, false);
+		return spawnMonsterInternal(life, false, newSpawn, false, effect);
 	}
 
 	/**
@@ -1407,32 +1407,7 @@ public class MaplePacketCreator {
 	 * @return The monster control packet.
 	 */
 	public static byte[] controlMonster(MapleMonster life, boolean newSpawn, boolean aggro) {
-		return spawnMonsterInternal(life, true, newSpawn, aggro, 0, false);
-	}
-
-	/**
-	 * Removes a monster invisibility.
-	 *
-	 * @param life
-	 * @return
-	 */
-	public static byte[] removeMonsterInvisibility(MapleMonster life) {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-		mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
-		mplew.write(1);
-		mplew.writeInt(life.getObjectId());
-		return mplew.getPacket();
-		//return spawnMonsterInternal(life, true, false, false, 0, false);
-	}
-
-	/**
-	 * Makes a monster invisible for Ariant PQ.
-	 *
-	 * @param life
-	 * @return
-	 */
-	public static byte[] makeMonsterInvisible(MapleMonster life) {
-		return spawnMonsterInternal(life, true, false, false, 0, true);
+		return spawnMonsterInternal(life, true, newSpawn, aggro, 0);
 	}
 
 	/**
@@ -1445,14 +1420,8 @@ public class MaplePacketCreator {
 	 * @param effect The spawn effect to use.
 	 * @return The spawn/control packet.
 	 */
-	private static byte[] spawnMonsterInternal(MapleMonster life, boolean requestController, boolean newSpawn, boolean aggro, int effect, boolean makeInvis) {
+	private static byte[] spawnMonsterInternal(MapleMonster life, boolean requestController, boolean newSpawn, boolean aggro, int effect) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-		if (makeInvis) {
-			mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
-			mplew.write(0);
-			mplew.writeInt(life.getObjectId());
-			return mplew.getPacket();
-		}
 		if (requestController) {
 			mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
 			mplew.write(aggro ? 2 : 1);

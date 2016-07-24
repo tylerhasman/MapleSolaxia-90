@@ -156,15 +156,6 @@ public final class TakeDamageHandler extends AbstractMaplePacketHandler {
                 map.broadcastMessage(player, MaplePacketCreator.damageMonster(oid, bouncedamage), false, true);
                 player.checkMonsterAggro(attacker);
             }
-            if (attacker != null && damagefrom == -1 && player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
-                Skill skill = SkillFactory.getSkill(Aran.BODY_PRESSURE);
-                final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
-                if (!attacker.alreadyBuffedStats().contains(MonsterStatus.NEUTRALISE)) {
-                    if (!attacker.isBoss() && eff.makeChanceResult()) {
-                    	attacker.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, (eff.getDuration()/10) * 2, false);
-                    }
-                }
-            }
             if (damagefrom != -3 && damagefrom != -4) {
                 int achilles = 0;
                 Skill achilles1 = null;

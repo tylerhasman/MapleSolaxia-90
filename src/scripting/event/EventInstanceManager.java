@@ -128,6 +128,18 @@ public class EventInstanceManager {
 			mob.setEventInstance(this);
 		}
 	}
+	
+	public void unregisterMonster(MapleMonster mob) {
+        mobs.remove(mob);
+        mob.setEventInstance(null);
+        if (mobs.isEmpty()) {
+            try {
+                em.getIv().invokeFunction("allMonstersDead", this);
+            } catch (ScriptException | NoSuchMethodException ex) {
+                ex.printStackTrace();
+            }
+        }
+	}
 
 	public void movePlayer(MapleCharacter chr) {
 		try {
