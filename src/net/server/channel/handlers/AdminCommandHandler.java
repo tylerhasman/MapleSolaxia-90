@@ -64,7 +64,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
             case 0x01: { // /d (inv)
                 byte type = slea.readByte();
                 MapleInventory in = c.getPlayer().getInventory(MapleInventoryType.getByType(type));
-                for (short i = 1; i <= in.getSlotLimit(); i++) { //TODO What is the point of this loop?
+                for (short i = 1; i <= in.getSlotLimit();) {
                     if (in.getItem(i) != null) {
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.getByType(type), i, in.getItem(i).getQuantity(), false);
                     }

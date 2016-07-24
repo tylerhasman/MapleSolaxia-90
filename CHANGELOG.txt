@@ -1,4 +1,4 @@
-Title : MapleSolaxia Fork
+Title : MapleSolaxia Fork (Thor)
 Version : 90.3
 
 Rev 1 - 2
@@ -20,6 +20,7 @@ Fixed Monster Dont Move
 Fixed Portals
 Fixed Picking Up Not Making Item Disappear
 Fixed NPC Packets
+Tweak Server Configuration
 
 
 

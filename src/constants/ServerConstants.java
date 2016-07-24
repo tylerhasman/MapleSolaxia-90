@@ -15,14 +15,14 @@ public class ServerConstants {
     //Event Configuration
     public static final boolean PERFECT_PITCH = false;
     // IP Configuration
-    public static String HOST;
+    public static String HOST = "127.0.0.1";
     //Database Configuration
-    public static String DB_URL = "";
-    public static String DB_USER = "";
+    public static String DB_URL = "jdbc:mysql://localhost:3306/thor";
+    public static String DB_USER = "root";
     public static String DB_PASS = "";
     //Other Configuration
-    public static boolean JAVA_8;
-    public static boolean SHUTDOWNHOOK;
+    public static boolean JAVA_8 = true;
+    public static boolean SHUTDOWNHOOK = true;
     //Gameplay Configurations
     public static final boolean USE_MTS = false;
     public static final boolean USE_FAMILY_SYSTEM = false;
@@ -38,26 +38,5 @@ public class ServerConstants {
 	public static final double PQ_BONUS_EXP_MOD = 0.5;
 	
 	public static final long EVENT_END_TIMESTAMP = 1428897600000L;
-    static {
-        Properties p = new Properties();
-        try {
-            p.load(new FileInputStream("configuration.ini"));
-
-            //SERVER
-            ServerConstants.HOST = p.getProperty("HOST");
-
-            //SQL DATABASE
-            ServerConstants.DB_URL = p.getProperty("URL");
-            ServerConstants.DB_USER = p.getProperty("DB_USER");
-            ServerConstants.DB_PASS = p.getProperty("DB_PASS");
-
-            //OTHER
-            ServerConstants.JAVA_8 = p.getProperty("JAVA8").equalsIgnoreCase("TRUE");
-            ServerConstants.SHUTDOWNHOOK = p.getProperty("SHUTDOWNHOOK").equalsIgnoreCase("true");
-
-        } catch (Exception e) {
-            System.out.println("Failed to load configuration.ini.");
-            System.exit(0);
-        }
-    }
 }
+

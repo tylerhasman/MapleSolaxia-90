@@ -130,11 +130,11 @@ public class Server implements Runnable {
         try {
             p.load(new FileInputStream("world.ini"));
         } catch (Exception e) {
-            System.out.println("Please start create_server.bat");
+            e.printStackTrace();
             System.exit(0);
         }
 
-        System.out.println("Solaxia v" + ServerConstants.VERSION + " starting up.\r\n");
+        System.out.println("Thor Server Emulator v" + ServerConstants.VERSION + " Starting up.\r\n");
 
 
         if(ServerConstants.SHUTDOWNHOOK)
@@ -199,7 +199,7 @@ public class Server implements Runnable {
                 System.out.println("Finished loading world " + i + "\r\n");
             }
         } catch (Exception e) {
-            System.out.println("Error in Solaxia.ini, start CreateINI.bat to re-make the file.");
+            System.out.println("Error in world.ini");
             e.printStackTrace();//For those who get errors
             System.exit(0);
         }

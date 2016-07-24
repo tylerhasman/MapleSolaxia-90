@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia Release/dist/mina-core.jar"/>
-	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia Release/dist/mysql-connector-java-bin.jar"/>
-	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia Release/dist/slf4j-api.jar"/>
-	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia Release/dist/slf4j-jdk14.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia 90/dist/mina-core.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia 90/dist/mysql-connector-java-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia 90/dist/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Desktop/MapleSolaxia 90/dist/slf4j-jdk14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
