@@ -1611,6 +1611,8 @@ public class MaplePacketCreator {
 		mplew.writeInt(equip); //equip bonus
 		mplew.writeInt(0); //Internet Cafe Bonus
 		mplew.writeInt(0); //Rainbow Week Bonus
+		mplew.writeInt(0); // Party Ring Bonus EXP
+        mplew.writeInt(0); // Cake vs Pie Bonus EXP 
 		return mplew.getPacket();
 	}
 

@@ -140,7 +140,7 @@ public class MapleMap {
 		this.world = world;
 		this.returnMapId = returnMapId;
 		this.monsterRate = (byte) Math.ceil(monsterRate);
-		
+
 		if (monsterRate > 0) {
 			this.monsterRate = monsterRate;
 			boolean greater1 = monsterRate > 1.0;
@@ -153,8 +153,8 @@ public class MapleMap {
 			}
 			TimerManager.getInstance().register(new RespawnWorker(), 5001 + (int) (30.0 * Math.random()));
 		}
-		
-		
+
+
 		final ReentrantReadWriteLock chrLock = new ReentrantReadWriteLock(true);
 		chrRLock = chrLock.readLock();
 		chrWLock = chrLock.writeLock();
@@ -508,80 +508,72 @@ public class MapleMap {
 		return count;
 	}
 
-	public boolean damageMonster(MapleCharacter chr, MapleMonster monster, int damage) {
+	public boolean damageMonster(final MapleCharacter chr, final MapleMonster monster, final int damage) {
 		if (monster.getId() == 8800000) {
-			Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
-			for (MapleMapObject object : objects) {
+			for (MapleMapObject object : chr.getMap().getMapObjects()) {
 				MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
 				if (mons != null) {
-					if (mons.getId() == 8800003 || mons.getId() == 8800004 || mons.getId() == 8800005 || mons.getId() == 8800006 || mons.getId() == 8800007 || mons.getId() == 8800008 || mons.getId() == 8800009 || mons.getId() == 8800010) {
+					if (mons.getId() >= 8800003 && mons.getId() <= 8800010) {
 						return true;
 					}
 				}
 			}
 		}
-
-		// double checking to potentially avoid synchronisation overhead
 		if (monster.isAlive()) {
-			boolean killMonster = false;
-
-			synchronized (monster) {
+			boolean killed = false;
+			monster.monsterLock.lock();
+			try {
 				if (!monster.isAlive()) {
 					return false;
 				}
-				if (damage > 0) {
-					int monsterhp = monster.getHp();
-					monster.damage(chr, damage, true);
-					if (!monster.isAlive()) { // monster just died
-
-						killMonster(monster, chr, true);
-						switch (monster.getId()) {
-							case 8810002:
-							case 8810003:
-							case 8810004:
-							case 8810005:
-							case 8810006:
-							case 8810007:
-							case 8810008:
-							case 8810009:
-								Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
-								for (MapleMapObject object : objects) {
-									MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
-									if (mons != null) {
-										if (mons.getId() == 8810018) {
-											damageMonster(chr, mons, monsterhp);
-										}
-									}
+				Pair<Integer, Integer> cool = monster.getStats().getCool();
+				if (cool != null) {
+					Pyramid pq = (Pyramid) chr.getPartyQuest();
+					if (pq != null) {
+						if (damage > 0) {
+							if (damage >= cool.getLeft()) {
+								if ((Math.random() * 100) < cool.getRight()) {
+									pq.cool();
+								} else {
+									pq.kill();
 								}
-								break;
+							} else {
+								pq.kill();
+							}
+						} else {
+							pq.miss();
 						}
-					} else {
-						switch (monster.getId()) {
-							case 8810002:
-							case 8810003:
-							case 8810004:
-							case 8810005:
-							case 8810006:
-							case 8810007:
-							case 8810008:
-							case 8810009:
-								Collection<MapleMapObject> objects = chr.getMap().getMapObjects();
-								for (MapleMapObject object : objects) {
-									MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
-									if (mons != null) {
-										if (mons.getId() == 8810018) {
-											damageMonster(chr, mons, damage);
-										}
-									}
+						killed = true;
+					}
+				}
+				if (damage > 0) {
+					monster.damage(chr, damage);
+					if (!monster.isAlive()) {  // monster just died
+						//killMonster(monster, chr, true);
+						killed = true;
+					}
+				} else if (monster.getId() >= 8810002 && monster.getId() <= 8810009) {
+					for (MapleMapObject object : chr.getMap().getMapObjects()) {
+						MapleMonster mons = chr.getMap().getMonsterByOid(object.getObjectId());
+						if (mons != null) {
+							if (monster.isAlive() && (monster.getId() >= 8810010 && monster.getId() <= 8810017)) {
+								if (mons.getId() == 8810018) {
+									killMonster(mons, chr, true);
 								}
-								break;
+							}
 						}
 					}
 				}
+			} finally {
+				monster.monsterLock.unlock();
 			}
-			// the monster is dead, as damageMonster returns immediately for dead monsters this makes
-			// this block implicitly synchronized for ONE monster
-			if (killMonster) {
+			if (monster.getStats().selfDestruction() != null && monster.getStats().selfDestruction().getHp() > -1) {// should work ;p
+				if (monster.getHp() <= monster.getStats().selfDestruction().getHp()) {
+					killMonster(monster, chr, true, false, monster.getStats().selfDestruction().getAction());
+					return true;
+				}
+			}
+			if (killed) {
 				killMonster(monster, chr, true);
 			}
 			return true;
@@ -637,7 +629,7 @@ public class MapleMap {
 		monster.setHp(0);
 		broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
 		removeMapObject(monster);
-		
+
 		if (monster.getCP() > 0 && chr.getCarnival() != null) {
 			chr.getCarnivalParty().addCP(chr, monster.getCP());
 			chr.announce(MaplePacketCreator.updateCP(chr.getCP(), chr.getObtainedCP()));
@@ -690,7 +682,7 @@ public class MapleMap {
 			}
 		}
 	}
-	
+
 	public void killAllMonsters() {
 		for (MapleMapObject monstermo : getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER))) {
 			MapleMonster monster = (MapleMonster) monstermo;
@@ -796,8 +788,8 @@ public class MapleMap {
 			synchronized (characters) {
 				for (MapleCharacter chr : characters) {
 					if (!chr.isHidden() && (chr.getControlledMonsters().size() < mincontrolled || mincontrolled == -1)) {
-							mincontrolled = chr.getControlledMonsters().size();
-							newController = chr;
+						mincontrolled = chr.getControlledMonsters().size();
+						newController = chr;
 					}
 				}
 			}
@@ -942,66 +934,27 @@ public class MapleMap {
 	}
 
 	public Point getGroundBelow(Point pos) {
-		Point spos = new Point(pos.x, pos.y - 3); // Using -3 fixes issues with spawning pets causing a lot of issues.
+		Point spos = new Point(pos.x, pos.y - 3);
 		spos = calcPointBelow(spos);
 		spos.y--;//shouldn't be null!
 		return spos;
-	}
-
-	public void spawnRevives(final MapleMonster monster) {
-		monster.setMap(this);
-
-		spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-			@Override
-			public void sendPackets(MapleClient c) {
-
-				c.announce(MaplePacketCreator.spawnMonster(monster, false));
-			}
-		});
-		updateMonsterController(monster);
-		spawnedMonstersOnMap.incrementAndGet();
 	}
 
 	public void spawnMonster(final MapleMonster monster) {
 		monster.setMap(this);
 		synchronized (this.mapobjects) {
 			spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
-				@Override
+
 				public void sendPackets(MapleClient c) {
 					c.announce(MaplePacketCreator.spawnMonster(monster, true));
 				}
 			});
+			if (monster.hasBossHPBar()) {
+				broadcastMessage(monster.makeBossHPBarPacket(), monster.getPosition());
+			}
 			updateMonsterController(monster);
-
-			if (monster.getDropPeriodTime() > 0) { //9300102 - Watchhog, 9300061 - Moon Bunny (HPQ)
-				if (monster.getId() == 9300102) {
-					monsterItemDrop(monster, new Item(4031507, (short) 0, (short) 1), monster.getDropPeriodTime());
-				} else if (monster.getId() == 9300061) {
-					monsterItemDrop(monster, new Item(4001101, (short) 0, (short) 1), monster.getDropPeriodTime() / 3);
-				} else {
-					FilePrinter.printError(FilePrinter.UNHANDLED_EVENT, "UNCODED TIMED MOB DETECTED: " + monster.getId());
-				}
-			}
-			spawnedMonstersOnMap.incrementAndGet();
-			final selfDestruction selfDestruction = monster.getStats().selfDestruction();
-			if (monster.getStats().removeAfter() > 0 || selfDestruction != null && selfDestruction.getHp() < 0) {
-				if (selfDestruction == null) {
-					TimerManager.getInstance().schedule(new Runnable() {
-						@Override
-						public void run() {
-							killMonster(monster, null, false);
-						}
-					}, monster.getStats().removeAfter() * 1000);
-				} else {
-					TimerManager.getInstance().schedule(new Runnable() {
-						@Override
-						public void run() {
-							killMonster(monster, null, false, false, selfDestruction.getAction());
-						}
-					}, selfDestruction.removeAfter() * 1000);
-				}
-			}
 		}
+		spawnedMonstersOnMap.incrementAndGet();
 	}
 
 	public void spawnDojoMonster(final MapleMonster monster) {
@@ -1710,19 +1663,21 @@ public class MapleMap {
 	}
 
 	/**
+	 * not threadsafe, please synchronize yourself
+	 * 
 	 * @param monster
-	 * @param mobTime
 	 */
 	public void addMonsterSpawn(MapleMonster monster, int mobTime, int team) {
-		Point newpos = calcPointBelow(monster.getPosition());
-		newpos.y -= 1;
-		SpawnPoint sp = new SpawnPoint(monster, newpos, !monster.isMobile(), mobTime, mobInterval, team);
-		monsterSpawn.add(sp);
-		if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
-			sp.spawnMonster(this);
-		}
-	}
-	
+        Point newpos = calcPointBelow(monster.getPosition());
+        newpos.y -= 1;
+        SpawnPoint sp = new SpawnPoint(monster, newpos, mobTime);
+        monsterSpawn.add(sp);
+        if (sp.shouldSpawn() || mobTime == -1) {// -1 does not respawn and should not either but force ONE spawn
+        	sp.spawnMonster(this);
+        }
+
+    }
+
 	private class RespawnWorker implements Runnable {
 
 		@Override
@@ -2002,7 +1957,7 @@ public class MapleMap {
 			}
 		}
 	}
-	
+
 	private static interface DelayedPacketCreation {
 
 		void sendPackets(MapleClient c);
@@ -2331,7 +2286,7 @@ public class MapleMap {
 	public short getMobInterval() {
 		return mobInterval;
 	}
-	
+
 	private int getMaxRegularSpawn() {
 		return (int) (monsterSpawn.size() / monsterRate);
 	}

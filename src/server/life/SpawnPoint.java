@@ -1,54 +1,57 @@
 /*
- This file is part of the OdinMS Maple Story Server
- Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
- Matthias Butz <matze@odinms.de>
- Jan Christian Meyer <vimes@odinms.de>
+	This file is part of the OdinMS Maple Story Server
+    Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc> 
+                       Matthias Butz <matze@odinms.de>
+                       Jan Christian Meyer <vimes@odinms.de>
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as
- published by the Free Software Foundation version 3 as published by
- the Free Software Foundation. You may not use, modify or distribute
- this program under any other version of the GNU Affero General Public
- License.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License version 3
+    as published by the Free Software Foundation. You may not use, modify
+    or distribute this program under any other version of the
+    GNU Affero General Public License.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
- You should have received a copy of the GNU Affero General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package server.life;
-
-import client.MapleCharacter;
-import server.maps.MapleMap;
 
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SpawnPoint {
+import client.MapleCharacter;
+import server.maps.MapleMap;
 
-	private int monster, mobTime, team, fh, f;
+public class SpawnPoint {
+	private MapleMonster monster;
 	private Point pos;
 	private long nextPossibleSpawn;
+	private int mobTime;
 	private AtomicInteger spawnedMonsters = new AtomicInteger(0);
+		
+	/**
+	 * Wether the spawned monster is immobile
+	 */
 	private boolean immobile;
-
-	public SpawnPoint(final MapleMonster monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team) {
-		this.monster = monster.getId();
+	
+	public SpawnPoint(MapleMonster monster, Point pos, int mobTime) {
+		super();
+		this.monster = monster;
 		this.pos = new Point(pos);
 		this.mobTime = mobTime;
-		this.team = team;
-		this.fh = monster.getFh();
-		this.f = monster.getF();
 		this.immobile = !monster.isMobile();
+		this.nextPossibleSpawn = System.currentTimeMillis();
 	}
 
 	public boolean shouldSpawn() {
 		return shouldSpawn(System.currentTimeMillis());
 	}
-
+	
 	// intentionally package private
 	boolean shouldSpawn(long now) {
 		if (mobTime < 0) {
@@ -62,12 +65,15 @@ public class SpawnPoint {
 		return nextPossibleSpawn <= now;
 	}
 
+	/**
+	 * Spawns the monster for this spawnpoint. Creates a new MapleMonster instance for that and returns it.
+	 * 
+	 * @param mapleMap
+	 * @return
+	 */
 	public MapleMonster spawnMonster(MapleMap mapleMap) {
-		MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
+		MapleMonster mob = new MapleMonster(monster);
 		mob.setPosition(new Point(pos));
-		mob.setTeam(team);
-		mob.setFh(fh);
-		mob.setF(f);
 		spawnedMonsters.incrementAndGet();
 		mob.addListener(new MonsterListener() {
 			@Override

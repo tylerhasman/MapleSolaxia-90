@@ -24,6 +24,10 @@ Tweak Server Configuration
 Fixed Issue Respawning, RespawnWorker now handles in MapleMap not ChannelServer.
 The MapleMonster has been revert due to some unknown issue occuring back to MoopleDev/Odin
 
+Rev 3
+
+Fixed the issue with respawning mobs now respawn upon being dead still no luck on invisible mobs being spawn (?)
+Updated getShowExpGain 
 
 
 Bugs 
