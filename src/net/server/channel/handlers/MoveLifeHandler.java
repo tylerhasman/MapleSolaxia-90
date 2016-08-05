@@ -45,6 +45,9 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             return;
         }
         MapleMonster monster = (MapleMonster) mmo;
+        if(monster.getHp() <= 0){
+            return;
+        }
         List<LifeMovementFragment> res;
         byte skillByte = slea.readByte();
         byte skill = slea.readByte();
